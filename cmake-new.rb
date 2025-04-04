@@ -24,6 +24,10 @@ OptionParser.new do |opts|
   opts.on("-t", "--type TYPE", "Project type: exe (default) or lib") do |type|
     options[:type] = type.downcase
   end
+
+  opts.on("--vscode", "Generate VSCode tasks.json") do
+    options[:vscode] = true
+  end
 end.parse!
 
 project = ARGV.shift
@@ -150,6 +154,63 @@ presets = {
 }
 
 File.write("#{project}/CMakePresets.json", JSON.pretty_generate(presets))
+
+if options[:vscode]
+  vscode_dir = "#{project}/.vscode"
+  FileUtils.mkdir_p(vscode_dir)
+  exe_name = project
+
+  tasks = {
+    "version" => "2.0.0",
+    "tasks" => [
+      {
+        "label" => "Configure (Debug)",
+        "type" => "shell",
+        "command" => "cmake --preset debug",
+        "hide" => true
+      },
+      {
+        "label" => "Build (Debug)",
+        "type" => "shell",
+        "command" => "cmake --build --preset debug",
+        "dependsOn" => ["Configure (Debug)"],
+        "dependsOrder" => "sequence",
+        "hide" => false
+      },
+      {
+        "label" => "Run (Debug)",
+        "type" => "shell",
+        "command" => "./build/debug/#{exe_name}",
+        "dependsOn" => ["Build (Debug)"],
+        "dependsOrder" => "sequence"
+      },
+      {
+        "label" => "Configure (Release)",
+        "type" => "shell",
+        "command" => "cmake --preset release",
+        "hide" => true
+      },
+      {
+        "label" => "Build (Release)",
+        "type" => "shell",
+        "command" => "cmake --build --preset release",
+        "dependsOn" => ["Configure (Release)"],
+        "dependsOrder" => "sequence",
+        "hide" => false
+      },
+      {
+        "label" => "Run (Release)",
+        "type" => "shell",
+        "command" => "./build/release/#{exe_name}",
+        "dependsOn" => ["Build (Release)"],
+        "dependsOrder" => "sequence"
+      }
+    ]
+  }
+
+  File.write("#{vscode_dir}/tasks.json", JSON.pretty_generate(tasks))
+end
+
 puts "Project '#{project}' created with language #{options[:lang]}, generator #{options[:generator]}, and type #{options[:type]}.
 
 Configure, build, and run instructions:

@@ -9,6 +9,7 @@ Usage: cmake-new <project> [options]
     -l, --lang LANG                  Language (e.g., C, CXX, C++, C++20 (default))
     -g, --generator GENERATOR        CMake generator (e.g., Ninja (default), Unix Makefiles)
     -t, --type TYPE                  Project type: exe (default) or lib
+        --vscode                     Generate VSCode tasks.json
 ```
 
 
