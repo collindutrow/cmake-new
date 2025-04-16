@@ -10,6 +10,7 @@ Usage: cmake-new <project> [options]
     -g, --generator GENERATOR        CMake generator (e.g., Ninja (default), Unix Makefiles)
     -t, --type TYPE                  Project type: exe (default) or lib
         --vscode                     Generate VSCode tasks.json
+        --git                        Initialize a git repository (requires git)
 ```
 
 
@@ -39,6 +40,7 @@ https://cmake.org/cmake/help/book/mastering-cmake/chapter/Writing%20CMakeLists%2
 new-project
 ├── CMakeLists.txt
 ├── CMakePresets.json
+├── README.md
 └── src
     └── main.cpp
 ```
@@ -58,10 +60,15 @@ or on Windows:
 Example configuration
 ```json
 {
-    "vscode_default": true
+    "vscode_tasks": true
 }
 ```
 
 Explanation of options
 
-* `vscode_default` — a boolean value, true enables the generation of the vscode tasks file by default without needing to specify `--vscode`.
+* `vscode_tasks` — boolean value. `true` enables generation of the VSCode `tasks.json` file by default without needing to specify `--vscode`.
+* `git` — boolean value. `true` enables Git repository initialization without needing to specify `--git`.
+* `git_branch` — string. If `git` is enabled and `git_branch` is set, initializes the Git repository with the specified branch name.
+* `lang` — string. Specifies the language standard for the project (e.g., `C`, `CXX`, `C++`, `C++20`). Defaults to `C++20` if not specified.
+* `generator` — string. Sets the CMake generator (e.g., `Ninja`, `Unix Makefiles`). Defaults to `Ninja`.
+* `type` — string. Defines the project type, either `exe` (default) for executables or `lib` for libraries.
