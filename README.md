@@ -42,3 +42,26 @@ new-project
 └── src
     └── main.cpp
 ```
+
+**Configuration File**
+
+An optional configuration file can be created in:
+```shell
+$HOME/.config/cmake-new.json
+```
+
+or on Windows:
+```batch
+%APPDATA%\CMake-New\cmake-new.json
+```
+
+Example configuration
+```json
+{
+    "vscode_default": true
+}
+```
+
+Explanation of options
+
+* `vscode_default` — a boolean value, true enables the generation of the vscode tasks file by default without needing to specify `--vscode`.

@@ -2,6 +2,7 @@
 
 require 'fileutils'
 require 'optparse'
+require 'rbconfig'
 require 'json'
 
 options = {
@@ -9,6 +10,26 @@ options = {
   generator: "Ninja",
   type: "exe"
 }
+
+version = "0.1.1"
+
+def config_path
+  if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+    File.join(ENV['APPDATA'], 'cmake-new', 'cmake-new.json')
+  else
+    File.expand_path('~/.config/cmake-new.json')
+  end
+end
+
+config_file = config_path
+if File.exist?(config_file)
+  begin
+    config = JSON.parse(File.read(config_file), symbolize_names: true)
+    options[:vscode] = true if config[:vscode_default] == true
+  rescue JSON::ParserError
+    warn "Warning: Ignoring invalid JSON in #{config_file}"
+  end
+end
 
 OptionParser.new do |opts|
   opts.banner = "Usage: cmake-new <project> [options]"
@@ -27,6 +48,11 @@ OptionParser.new do |opts|
 
   opts.on("--vscode", "Generate VSCode tasks.json") do
     options[:vscode] = true
+  end
+
+  opts.on("--version", "Show version") do
+    puts "cmake-new version #{version}"
+    exit
   end
 end.parse!
 
@@ -103,15 +129,25 @@ File.write("#{project}/src/main.#{ext}", main_code)
 cmake = <<~CMAKE
   cmake_minimum_required(VERSION 3.15)
   project(#{project} LANGUAGES #{lang})
-CMAKE
 
-cmake << if options[:type] == "exe"
-  "add_executable(#{project} src/main.#{ext})\n"
-elsif options[:type] == "lib"
-  "add_library(#{project} src/main.#{ext})\n"
-else
-  ""
-end
+  # Source files
+  file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.#{ext})
+  add_#{options[:type] == "lib" ? "library" : "executable"}(#{project} \${SOURCES})
+
+  # Include directory
+  target_include_directories(#{project}
+    PUBLIC
+      \${PROJECT_SOURCE_DIR}/include
+  )
+
+  # Automatically add all subdirs in external/ with a CMakeLists.txt
+  file(GLOB children RELATIVE "${PROJECT_SOURCE_DIR}/external" "${PROJECT_SOURCE_DIR}/external/*")
+  foreach(child ${children})
+    if(EXISTS "${PROJECT_SOURCE_DIR}/external/${child}/CMakeLists.txt")
+      add_subdirectory(external/${child})
+    endif()
+  endforeach()
+CMAKE
 
 cmake << "set_property(TARGET #{project} PROPERTY CXX_STANDARD #{std})\n" if lang == "CXX" && std
 File.write("#{project}/CMakeLists.txt", cmake)
@@ -222,3 +258,4 @@ cmake --build --preset debug
 
 Note: See more `CMakeLists.txt` commands and their definitions at 
 https://cmake.org/cmake/help/book/mastering-cmake/chapter/Writing%20CMakeLists%20Files.html"
+
