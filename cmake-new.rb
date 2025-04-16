@@ -285,7 +285,14 @@ if options[:vscode]
       {
         "type": "cppdbg",
         "request": "launch",
-        "name": "Debug",
+        "name": "Debug (GDB/LLDB)",
+        "cwd": "${workspaceFolder}/build/debug",
+        "program": "${workspaceFolder}/build/debug/#{exe_name}",
+      },    
+      {
+        "type": "cppvsdbg",
+        "request": "launch",
+        "name": "Debug (MSVC)",
         "cwd": "${workspaceFolder}/build/debug",
         "program": "${workspaceFolder}/build/debug/#{exe_name}",
       }
