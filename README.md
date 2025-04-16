@@ -60,15 +60,16 @@ or on Windows:
 Example configuration
 ```json
 {
-    "vscode_tasks": true
+    "vscode": true,
+    "git": true
 }
 ```
 
 Explanation of options
 
-* `vscode_tasks` — boolean value. `true` enables generation of the VSCode `tasks.json` file by default without needing to specify `--vscode`.
-* `git` — boolean value. `true` enables Git repository initialization without needing to specify `--git`.
+* `vscode` — boolean value. `true` enables generation of the VSCode `launch.json` and `tasks.json`. Defaults to false.
+* `git` — boolean value. `true` enables Git repository initialization. Defaults to false.
 * `git_branch` — string. If `git` is enabled and `git_branch` is set, initializes the Git repository with the specified branch name.
 * `lang` — string. Specifies the language standard for the project (e.g., `C`, `CXX`, `C++`, `C++20`). Defaults to `C++20` if not specified.
 * `generator` — string. Sets the CMake generator (e.g., `Ninja`, `Unix Makefiles`). Defaults to `Ninja`.
-* `type` — string. Defines the project type, either `exe` (default) for executables or `lib` for libraries.
+* `type` — string. Defines the project type, either `exe` for executables or `lib` for libraries. Defaults to `exe`.

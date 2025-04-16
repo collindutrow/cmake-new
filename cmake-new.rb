@@ -29,7 +29,7 @@ config_file = config_path
 if File.exist?(config_file)
   begin
     config = JSON.parse(File.read(config_file), symbolize_names: true)
-    options[:vscode] = true if config[:vscode_tasks] == true
+    options[:vscode] = true if config[:vscode] == true
     options[:git] = config[:git] if config[:git] == true
     options[:lang] = config[:lang] if config[:lang]
     options[:generator] = config[:generator] if config[:generator]
@@ -59,11 +59,11 @@ OptionParser.new do |opts|
     options[:type] = type.downcase
   end
 
-  opts.on("--vscode", "Generate VSCode tasks.json") do
+  opts.on("--vscode", "Generate VSCode files") do
     options[:vscode] = true
   end
 
-  opts.on("--git", "Initialize a git repository") do
+  opts.on("--git", "Initialize a git repository (requires git)") do
     options[:git] = true
   end
 
@@ -278,7 +278,23 @@ if options[:vscode]
     ]
   }
 
+  launch = <<~LAUNCH
+  {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "cppdbg",
+        "request": "launch",
+        "name": "Debug",
+        "cwd": "${workspaceFolder}/build/debug",
+        "program": "${workspaceFolder}/build/debug/#{exe_name}",
+      }
+    ]
+  }
+  LAUNCH
+
   File.write("#{vscode_dir}/tasks.json", JSON.pretty_generate(tasks))
+  File.write("#{vscode_dir}/launch.json", launch)
 end
 
 # Create a README file
@@ -327,7 +343,7 @@ puts "CMake project '#{project}' created successfully.
 Language: #{options[:lang]}
 Generator: #{options[:generator]}
 Type: #{options[:type]}
-VSCode tasks generated: #{options[:vscode] ? 'Yes' : 'No'}
+VSCode files generated: #{options[:vscode] ? 'Yes' : 'No'}
 Git repository initialized: #{options[:git] ? 'Yes' : 'No'}
 Project '#{project}' created with language #{options[:lang]}, generator #{options[:generator]}, and type #{options[:type]}.
 
